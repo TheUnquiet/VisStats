@@ -77,19 +77,50 @@ namespace VisStatsDL_SQL
             }
         }
 
-        bool IsOpgeladen(string filename)
+        public bool IsOpgeladen(string filename)
         {
-            throw new NotImplementedException();
-
-            // check if filename exist
+            string SQL = "SELECT Count(*) FROM upload WHERE filename=@filename";
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = conn.CreateCommand())
+            {
+                try
+                {
+                    conn.Open();
+                    cmd.CommandText = SQL;
+                    cmd.Parameters.Add(new SqlParameter("@filename", SqlDbType.NVarChar));
+                    cmd.Parameters["@filename"].Value = filename.Substring(filename.LastIndexOf("\\") + 1);
+                    int n = (int)cmd.ExecuteScalar();
+                    if (n > 0) return true; else return false;
+                } catch (Exception ex)
+                {
+                    throw new Exception("IsOpgeladen", ex);
+                }
+            }
         }
 
-        List<Haven> LeesHavens()
+        public List<Haven> LeesHavens()
         {
-            throw new NotImplementedException();
+            string Sql = "SELECT * FROM Haven";
+            List<Haven> havens = new List<Haven>();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = conn.CreateCommand())
+            {
+                try
+                {
+                    conn.Open();
+                    cmd.CommandText = Sql;
+                    IDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                       havens.Add(new Haven((int)reader["id"], (string)reader["naam"]));
+                    }
+                    return havens;
+                }
+                catch (Exception ex) { throw new Exception("LeesHavens", ex); }
+            }
         }
 
-        List<Vissoort> LeesSoorten()
+        public List<Vissoort> LeesSoorten()
         {
             string Sql = "SELECT * FROM Soort";
             List<Vissoort> vissoorten = new List<Vissoort>();
@@ -111,9 +142,108 @@ namespace VisStatsDL_SQL
             }
         }
 
-        void SchrijfStatistieken(List<VisStatsDataRecord> data, string filename)
+        public void SchrijfStatistieken(List<VisStatsDataRecord> data, string filename)
         {
-            throw new NotImplementedException();
+            string Sqldata = "INSERT INTO VisStats(jaar,maand,haven_id, soort_id,gewicht,waarde) VALUES(@jaar,@maand,@haven_id,@soort_id,@gewicht,@waarde)";
+            string SqlUpload = "INSERT INTO Upload(filename,datum,pad) VALUES(@filename,@datum,@pad)";
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = conn.CreateCommand())
+            {
+                try
+                {
+                    conn.Open();
+                    cmd.CommandText = Sqldata;
+                    cmd.Transaction = conn.BeginTransaction();
+                    cmd.Parameters.Add(new SqlParameter("@jaar", SqlDbType.Int));
+                    cmd.Parameters.Add(new SqlParameter("@maand", SqlDbType.Int));
+                    cmd.Parameters.Add(new SqlParameter("@haven_id", SqlDbType.Int));
+                    cmd.Parameters.Add(new SqlParameter("@soort_id", SqlDbType.Int));
+                    cmd.Parameters.Add(new SqlParameter("@gewicht", SqlDbType.Float));
+                    cmd.Parameters.Add(new SqlParameter("@waarde", SqlDbType.Float));
+                    foreach (VisStatsDataRecord dataRecord in data)
+                    {
+                        cmd.Parameters["@jaar"].Value = dataRecord.Jaar;
+                        cmd.Parameters["@maand"].Value = dataRecord.Maand;
+                        cmd.Parameters["@haven_id"].Value = dataRecord.Haven.Id;
+                        cmd.Parameters["@soort_id"].Value = dataRecord.Vissoort.Id;
+                        cmd.Parameters["@gewicht"].Value = dataRecord.Gewicht;
+                        cmd.Parameters["@waarde"].Value = dataRecord.Waarde;
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    cmd.CommandText = SqlUpload;
+                    cmd.Parameters.Clear();
+                    cmd.Parameters.AddWithValue("@filename", filename.Substring(filename.LastIndexOf("\\") + 1));
+                    cmd.Parameters.AddWithValue("@pad", filename.Substring(0, filename.LastIndexOf("\\") + 1));
+                    cmd.Parameters.AddWithValue("@datum", DateTime.Now);
+                    cmd.ExecuteNonQuery();
+                    cmd.Transaction.Commit();
+                } catch (Exception ex)
+                {
+                    cmd.Transaction.Rollback();
+                    throw new Exception("SchrijfStatistieken", ex);
+                }
+            } 
+        }
+
+        public List<JaarVangst> LeesStatistieken(int jaar, Haven haven, List<Vissoort> vissoorten, Eenheid eenheid)
+        {
+            string kolom = "";
+            switch (eenheid)
+            {
+                case Eenheid.kg: kolom = "gewicht"; break;
+                case Eenheid.euro: kolom = "waarde"; break;
+            }
+            string paramSoorten = "";
+            for (int i = 0; i < vissoorten.Count; i++) paramSoorten += $"@ps{i},";
+            paramSoorten = paramSoorten.Remove(paramSoorten.Length - 1);
+            string Sql = $"SELECT soort_id,t2.naam soortnaam,jaar,sum({kolom}) totaal,min({kolom}) minimum,max({kolom}) maximum,avg({kolom}) gemiddelde FROM VisStats t1 left join Soort t2 on t1.soort_id=t2.id where jaar=@jaar and soort_id in({paramSoorten}) and haven_id=@haven_id group by soort_id,t2.naam,jaar";
+            List<JaarVangst> vangst = new();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = conn.CreateCommand())
+            {
+                try
+                {
+                    conn.Open();
+                    cmd.CommandText = Sql;
+                    cmd.Parameters.AddWithValue("@haven_id", haven.Id);
+                    cmd.Parameters.AddWithValue("@jaar", jaar);
+                    for (int i = 0; i < vissoorten.Count; i++) cmd.Parameters.AddWithValue($"@ps{i}", vissoorten[i].Id);
+                    IDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        vangst.Add(new JaarVangst((string)reader["soortnaam"], (double)reader["totaal"], (double)reader["minimum"], (double)reader["maximum"], (double)reader["gemiddelde"]));
+                    }
+                    return vangst;
+                } catch (Exception ex)
+                {
+                    throw new Exception("LeesStatistieken", ex);
+                }
+            }
+        }
+
+        public List<int> LeesJaartallen()
+        {
+            string Sql = "SELECT distinct jaar FROM visstats";
+            List<int> jaartallen = new List<int>();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = conn.CreateCommand())
+            {
+                try
+                {
+                    conn.Open();
+                    cmd.CommandText = Sql;
+                    IDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        jaartallen.Add((int)reader["jaar"]);
+                    }
+                    return jaartallen;
+                } catch (Exception ex)
+                {
+                    throw new Exception("Leesjaartallen", ex);
+                }
+            }
         }
     }
 }

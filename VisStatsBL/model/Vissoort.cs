@@ -31,9 +31,11 @@ namespace VisStatsBL.model
         public Vissoort(int? id, string naam)
         {
             Id = id;
-            this.naam = Naam;
+            this.naam = naam;
         }
-
-
+        public override string ToString()
+        {
+            return naam;
+        }
     }
 }

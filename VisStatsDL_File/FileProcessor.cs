@@ -75,7 +75,7 @@ namespace VisStatsDL_File
                         // lees naam havens
                         else if (line.Contains("Vissoorten|Totaal van de havens"))
                         {
-                            string pattern = @"^\|([A-Za-z]+)\|";
+                            string pattern = @"\|([A-Za-z]+)\|";
                             MatchCollection matches = Regex.Matches(line, pattern);
                             foreach (Match match in matches) havensTxt.Add(match.Groups[1].Value);
                         }

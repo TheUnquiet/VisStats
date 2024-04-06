@@ -18,5 +18,8 @@ namespace VisStatsBL.interfaces
         List<Haven> LeesHavens();
         List<Vissoort> LeesSoorten();
         void SchrijfStatistieken(List<VisStatsDataRecord> data, string filename);
+        List<JaarVangst> LeesStatistieken(int jaar, Haven haven, List<Vissoort> vissoorten, Eenheid eenheid);
+        //public void LeesStatistieken(int jaar, Haven haven, List<Vissoort> vissoorten, Eenheid eenheid);
+        List<int> LeesJaartallen();
     }
 }

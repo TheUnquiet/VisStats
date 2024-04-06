@@ -12,6 +12,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="3*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -23,8 +25,7 @@
                 Margin="5" Click="Button_Click_UploadVissoorten" />
         <ListBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Name="VissoortenFileListbox"
                  Margin="2" IsEnabled="False" />
-        
-        
+       
         <Button Grid.Row="2" Grid.Column="0" Content="Havens"
                 Margin="5" Click="Button_Click_Havens" />
         <Button Grid.Row="2" Grid.Column="1" Content="Upload havens"
@@ -32,5 +33,12 @@
 
         <ListBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Name="HavensFileListbox"
                  Margin="2" IsEnabled="False" />
+
+        <Button Grid.Row="4" Grid.Column="0" Content="Statistieken" Margin="5"
+                    Click="Button_Click_Statistieken"></Button>
+        <Button Grid.Row="4" Grid.Column="1" Content="Upload naar Databank" Margin="5"
+                Click="Button_Click_UploadStatistieken"></Button>
+        <ListBox Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Name="StatistiekenFileListBox"
+                 Margin="2"></ListBox>
     </Grid>
 </Window>
