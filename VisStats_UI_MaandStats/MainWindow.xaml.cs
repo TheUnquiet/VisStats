@@ -14,6 +14,7 @@ using VisStatsBL.managers;
 using VisStatsBL.model;
 using VisStatsDL_File;
 using VisStatsDL_SQL;
+using VisStatsUI_MaandStats;
 
 namespace VisStats_UI_MaandStats
 {
@@ -27,10 +28,10 @@ namespace VisStats_UI_MaandStats
         IVisStatsRepository visStatsRepository;
         VisStatsManager visStatsManager;
 
-        ObservableCollection<MaandVangst> maandVangsten;
+        ObservableCollection<MaandVangst> maandVangsten = new ObservableCollection<MaandVangst>();
         ObservableCollection<Haven> Havens;
 
-        public MainWindow(List<MaandVangst> vangst)
+        public MainWindow()
         {
             InitializeComponent();
             fileProcessor = new FileProcessor();
@@ -38,33 +39,26 @@ namespace VisStats_UI_MaandStats
             visStatsManager = new VisStatsManager(fileProcessor, visStatsRepository);
 
             SoortComboBox.ItemsSource = visStatsManager.GeefVissoorten();
-
-            HavenComboBox.ItemsSource = visStatsManager.GeefHavens();
             
             JaarComboBox.ItemsSource = visStatsManager.GeefJaartallen();
 
             MaandComboBox.ItemsSource = Enumerable.Range(1, 12);
 
-            StatistiekenDataGrid.ItemsSource = maandVangsten;
-        }
-
-        private void StatistiekenDataGrid_AutoGeneratingColumn(object? sender, DataGridAutoGeneratingColumnEventArgs e)
-        {
-            
         }
 
         private void ToonStatsButton_Click(object sender, RoutedEventArgs e)
         {
-            List<MaandVangst> maandVangst = visStatsManager.GeefMaandVangst(
+            /*List<MaandVangst> maandVangst = visStatsManager.GeefMaandVangst(
                 (int)JaarComboBox.SelectedItem, (int)MaandComboBox.SelectedItem, (Vissoort)SoortComboBox.SelectedItem, 
                 (Haven) HavenComboBox.SelectedItem);
-
-            maandVangsten.Clear();
-
             foreach (MaandVangst vangst in  maandVangst)
             {
                 maandVangsten.Add(vangst);
             }
+
+            Stats stats = new Stats((int)JaarComboBox.SelectedItem, (int)MaandComboBox.SelectedItem, maandVangst, (Haven)HavenComboBox.SelectedItem);
+            stats.ShowDialog();
+            */
         }
     }
 }

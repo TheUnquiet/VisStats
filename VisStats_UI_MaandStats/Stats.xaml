@@ -1,0 +1,31 @@
+﻿<Window x:Class="VisStatsUI_MaandStats.Stats"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VisStatsUI_MaandStats"
+        mc:Ignorable="d"
+        Title="Maand Statistieken" Height="450" Width="800">
+    <Grid Background="AliceBlue">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Column="0" Content="Haven" Margin="5" HorizontalContentAlignment="Center"/>
+        <TextBox Grid.Column="1" Name="HavenTextBox" Margin="5" VerticalAlignment="Center"/>
+        <Label Grid.Column="2" Content="Jaar" Margin="5" HorizontalContentAlignment="Center"/>
+        <TextBox Grid.Column="3" Margin="5" Name="JaarTextBox" VerticalAlignment="Center"/>
+        <Label Grid.Column="4" Content="Maand" Margin="5" HorizontalContentAlignment="Center"/>
+        <TextBox Grid.Column="5" Margin="5" Name="MaandTextBox" VerticalAlignment="Center"/>
+        <DataGrid Grid.Row="1" Grid.Column="0"
+Name="StatistiekenDataGrid" IsReadOnly="True" ColumnWidth="*" Margin="5" Grid.ColumnSpan="8"/>
+    </Grid>
+</Window>
