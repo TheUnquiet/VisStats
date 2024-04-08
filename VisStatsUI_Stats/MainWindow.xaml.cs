@@ -44,8 +44,7 @@ namespace VisStatsUI_Stats
 
             AlleVissoorten = new ObservableCollection<Vissoort>(visStatsManager.GeefVissoorten());
             AlleSoortenListBox.ItemsSource = AlleVissoorten;
-            GeselecteerdeVissoorten = new ObservableCollection<Vissoort>();
-            GeselecteerdeSoortenListBox.ItemsSource=GeselecteerdeVissoorten;
+            GeselecteerdeVissoorten = new ObservableCollection<Vissoort>();      GeselecteerdeSoortenListBox.ItemsSource=GeselecteerdeVissoorten;
         }
 
         private void VoegAlleSoortenToeButton_CLick(object sender, RoutedEventArgs e)

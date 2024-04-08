@@ -186,6 +186,38 @@ namespace VisStatsDL_SQL
             } 
         }
 
+        public List<MaandVangst> LeesMaandVangst(int jaar, int maand, Vissoort soort, Haven haven)
+        {
+            
+            string sql = $"SELECT vst.maand, vst.jaar, s.naam as naam, SUM(waarde) as totaal FROM VisStats vst LEFT JOIN Soort s on vst.soort_id = s.id INNER JOIN Haven h on vst.haven_id = h.id WHERE vst.maand = @maand AND vst.jaar = @jaar AND s.id = @soort_id AND h.naam = @haven GROUP BY vst.maand, vst.jaar, s.naam;";
+
+            List<MaandVangst> vangst = new();
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlCommand cmd = conn.CreateCommand())
+            {
+                try
+                {
+                    conn.Open();
+                    cmd.CommandText = sql;
+                    cmd.Parameters.AddWithValue("@soort_id", soort.Id);
+                    cmd.Parameters.AddWithValue("@jaar", jaar);
+                    cmd.Parameters.AddWithValue("@maand", maand);
+                    cmd.Parameters.AddWithValue("@haven", haven.Naam);
+                    IDataReader reader = cmd.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        vangst.Add(new MaandVangst((string)reader["naam"], (double)reader["totaal"], (int)reader["maand"], (int)reader["jaar"]));
+                    }
+                    return vangst;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("LeesStatistieken", ex);
+                }
+            }
+        }
+
         public List<JaarVangst> LeesStatistieken(int jaar, Haven haven, List<Vissoort> vissoorten, Eenheid eenheid)
         {
             string kolom = "";
@@ -239,7 +271,8 @@ namespace VisStatsDL_SQL
                         jaartallen.Add((int)reader["jaar"]);
                     }
                     return jaartallen;
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     throw new Exception("Leesjaartallen", ex);
                 }

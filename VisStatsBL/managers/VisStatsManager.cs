@@ -120,6 +120,18 @@ namespace VisStatsBL.managers
             }
         }
 
+        public List<int> GeefMaanden()
+        {
+            try
+            {
+                return _visstatsreposotory.LeesJaartallen();
+            }
+            catch (Exception ex)
+            {
+                throw new domeinException("GeefJaartallen", ex);
+            }
+        }
+
         public List<Vissoort> GeefVissoorten()
         {
             try
@@ -141,6 +153,18 @@ namespace VisStatsBL.managers
             catch (Exception ex)
             {
                 throw new domeinException("GeefVissoorten", ex);
+            }
+        }
+
+        public List<MaandVangst> GeefMaandVangst(int jaar, int maand, Vissoort soort, Haven haven)
+        {
+            try
+            {
+                return _visstatsreposotory.LeesMaandVangst(jaar, maand, soort, haven);
+            }
+            catch (Exception ex)
+            {
+                throw new domeinException("GeefMaandVangst", ex);
             }
         }
     }
